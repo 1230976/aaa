@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小包的个人主页 | XBAOS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5B8DEF;
+            --primary-hover: #4A7DD9;
+            --primary-light: rgba(91, 141, 239, 0.08);
+            --bg: #FAFBFC;
+            --card-bg: #FFFFFF;
+            --text: #333333;
+            --text-light: #666666;
+            --text-muted: #999999;
+            --border: #E8ECF1;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 4px 20px rgba(91, 141, 239, 0.15);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: var(--primary);
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.2s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .nav-toggle span {
+            width: 22px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        /* 主内容 */
+        .main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        /* 首页/英雄区 */
+        .hero {
+            text-align: center;
+            padding: 40px 0 60px;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 28px;
+        }
+
+        .avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: #e8f0fe;
+        }
+
+        .avatar:hover {
+            transform: scale(1.03);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .avatar-ring {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            opacity: 0.3;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.05); opacity: 0.1; }
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+            letter-spacing: 2px;
+        }
+
+        .hero .tagline {
+            font-size: 16px;
+            color: var(--text-light);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* 社交图标 */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 28px;
+        }
+
+        .social-link {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            color: var(--text-light);
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .social-link svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* 卡片通用 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 36px;
+            box-shadow: var(--shadow);
+            margin-bottom: 28px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 22px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* 关于我 */
+        .about-content p {
+            color: var(--text-light);
+            font-size: 15px;
+            margin-bottom: 14px;
+        }
+
+        .about-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            padding: 5px 14px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* 文件分享区 */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: var(--bg);
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-area svg {
+            width: 48px;
+            height: 48px;
+            fill: var(--primary);
+            margin-bottom: 12px;
+            opacity: 0.7;
+        }
+
+        .upload-area .upload-text {
+            font-size: 15px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .upload-area .upload-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .upload-area .upload-hint span {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* 文件列表 */
+        .file-list {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .file-list.show {
+            display: block;
+        }
+
+        .file-list-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .file-item:hover {
+            background: var(--primary-light);
+        }
+
+        .file-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .file-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: #fff;
+        }
+
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-download,
+        .btn-delete {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-download {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-download:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-delete {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .btn-delete:hover {
+            background: #ffe8e8;
+            color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .btn-download svg,
+        .btn-delete svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .empty-tip {
+            text-align: center;
+            padding: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* 联系我 */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .contact-item:hover {
+            background: var(--primary-light);
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .contact-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+
+        .contact-info .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .contact-info .value {
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 32px 24px;
+            color: var(--text-muted);
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .nav-toggle {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: var(--card-bg);
+                flex-direction: column;
+                padding: 20px 24px;
+                gap: 16px;
+                border-bottom: 1px solid var(--border);
+                box-shadow: var(--shadow);
+                transform: translateY(-120%);
+                transition: transform 0.3s ease;
+            }
+
+            .nav-menu.active {
+                transform: translateY(0);
+            }
+
+            .nav-menu a::after {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .avatar {
+                width: 120px;
+                height: 120px;
+            }
+
+            .card {
+                padding: 24px;
+                border-radius: 12px;
+            }
+
+            .section-title {
+                font-size: 19px;
+            }
+
+            .main {
+                padding: 84px 16px 40px;
+            }
+
+            .upload-area {
+                padding: 28px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">XBAOS</div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home">首页</a></li>
+                <li><a href="#about">关于我</a></li>
+                <li><a href="#files">文件分享</a></li>
+                <li><a href="#contact">联系我</a></li>
+            </ul>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main">
+        <!-- 首页 -->
+        <section class="hero" id="home">
+            <div class="avatar-wrapper">
+                <div class="avatar-ring"></div>
+                <img class="avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=xiaobao&backgroundColor=b6e3f4" alt="小包的头像">
+            </div>
+            <h1>小包</h1>
+            <p class="tagline">嗨嗨，这里是有趣的XBAOS频道！一起玩耍吧~</p>
+
+            <!-- 社交图标 -->
+            <div class="social-links">
+                <a href="#" class="social-link" title="GitHub" aria-label="GitHub">
+                    <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                </a>
+                <a href="#" class="social-link" title="微博" aria-label="微博">
+                    <svg viewBox="0 0 24 24"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.313-.361-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.573h.014zm.176-2.719c-1.893-.493-4.033.45-4.857 2.118-.836 1.704-.026 3.591 1.886 4.21 1.983.64 4.318-.341 5.132-2.179.8-1.793-.201-3.642-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.972.42-1.802.003-2.378-.786-1.086-2.926-1.037-5.388-.029 0 0-.774.338-.577-.274.379-1.207.316-2.217-.275-2.795-1.35-1.315-4.942.046-8.025 3.043C1.138 10.76 0 13.031 0 15.018c0 3.817 4.86 6.136 9.636 6.136 6.276 0 10.488-3.65 10.488-6.539 0-1.741-1.468-2.723-2.065-2.966zm1.583-5.734c-1.181-1.308-2.93-1.818-4.573-1.523-.331.06-.555.384-.495.716.06.331.384.555.716.495 1.163-.21 2.402.147 3.242 1.078.84.931 1.065 2.185.675 3.258-.127.346.051.721.397.848.347.127.721-.051.848-.374.525-1.438.224-3.122-.81-4.475zm-2.092 1.883c-.578-.64-1.435-.89-2.24-.747-.287.052-.479.328-.427.615.052.287.328.479.615.427.405-.074.833.052 1.122.372.289.32.375.752.255 1.124-.098.305.069.631.374.729.305.098.631-.069.729-.374.241-.753.069-1.617-.428-2.146z"/></svg>
+                </a>
+                <a href="#" class="social-link" title="知乎" aria-label="知乎">
+                    <svg viewBox="0 0 24 24"><path d="M5.721 0C2.251 0 0 2.25 0 5.719V18.28C0 21.751 2.252 24 5.721 24h12.56C21.751 24 24 21.75 24 18.281V5.72C24 2.249 21.75 0 18.281 0zm1.964 4.078c-.271.73-.5 1.434-.68 2.11h4.587c.545-.006.445 1.168.445 1.168H6.383c-.08.452-.151.904-.213 1.356h5.715s.486.024.486.54-.486.534-.486.534H5.962c-.056.39-.101.779-.137 1.167-.618 4.21-2.51 5.72-2.51 5.72-.07.236.035.34.236.236 0 0 1.47-.842 2.522-3.287.387 1.372 1.092 2.65 2.078 3.678-.99 1.09-2.308 1.604-2.308 1.604-.156.072-.064.252.116.218 0 0 2.88-.35 4.676-3.074 1.18 1.652 3.12 2.52 3.12 2.52.19.078.27-.116.148-.248 0 0-1.872-1.328-3.045-3.71 1.517-.348 3.693-1.292 3.693-1.292.18-.084.09-.252-.084-.234 0 0-3.387.842-4.817 1.16.348-.894.616-1.868.772-2.856h2.432s.516-.024.516-.54-.516-.534-.516-.534h-2.664c.104-.452.187-.904.253-1.356h2.952s.546-.018.546-.546-.546-.534-.546-.534h-3.222c.12-.672.22-1.34.3-2.004.018-.18-.156-.27-.27-.174 0 0-.744.486-1.656 1.512-.733-.822-1.585-1.452-1.585-1.452-.156-.12-.282-.03-.24.156z"/></svg>
+                </a>
+                <a href="#" class="social-link" title="邮箱" aria-label="邮箱">
+                    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                </a>
+                <a href="#" class="social-link" title="微信" aria-label="微信">
+                    <svg viewBox="0 0 24 24"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178A1.17 1.17 0 014.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178 1.17 1.17 0 01-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 01.598.082l1.584.926a.272.272 0 00.14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 01-.023-.156.49.49 0 01.201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.542.434-.982.969-.982z"/></svg>
+                </a>
+            </div>
+        </section>
+
+        <!-- 关于我 -->
+        <section class="card" id="about">
+            <h2 class="section-title">关于我</h2>
+            <div class="about-content">
+                <p>你好呀！我是小包，一个对世界充满好奇心的创作者。热爱技术、喜欢折腾，相信有趣的灵魂终会相遇。</p>
+                <p>在日常里，我喜欢用代码构建好玩的小东西，用文字记录生活的点滴。我始终相信，保持热爱，奔赴山海，每一天都可以是新的开始。</p>
+                <p>如果你也喜欢探索新鲜事物，欢迎来和我一起玩耍，一起发现生活中的小确幸~</p>
+                <div class="tags">
+                    <span class="tag">乐观开朗</span>
+                    <span class="tag">热爱生活</span>
+                    <span class="tag">终身学习</span>
+                    <span class="tag">创意无限</span>
+                    <span class="tag">代码爱好者</span>
+                    <span class="tag">分享达人</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 文件分享 -->
+        <section class="card" id="files">
+            <h2 class="section-title">文件分享</h2>
+            <p style="color: var(--text-light); font-size: 14px; margin-bottom: 16px;">上传文件后，别人可以通过这个页面下载你分享的文件~</p>
+
+            <div class="upload-area" id="uploadArea">
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                <p class="upload-text">点击或拖拽文件到此处上传</p>
+                <p class="upload-hint">支持任意格式，单个文件最大 <span>50MB</span></p>
+                <input type="file" id="fileInput" multiple>
+            </div>
+
+            <div class="file-list" id="fileList">
+                <div class="file-list-title">已分享的文件</div>
+                <div id="fileItems"></div>
+            </div>
+        </section>
+
+        <!-- 联系我 -->
+        <section class="card" id="contact">
+            <h2 class="section-title">联系我</h2>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    </div>
+                    <div class="contact-info">
+                        <div class="label">邮箱</div>
+                        <div class="value">hello@xbaos.com</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                    </div>
+                    <div class="contact-info">
+                        <div class="label">电话</div>
+                        <div class="value">+86 138 **** ****</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </div>
+                    <div class="contact-info">
+                        <div class="label">所在地</div>
+                        <div class="value">中国 · 漯河</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                    </div>
+                    <div class="contact-info">
+                        <div class="label">GitHub</div>
+                        <div class="value">github.com/xbaos</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>©2026 XBAOS. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // ========== 导航栏 ==========
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 10);
+        });
+
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        navToggle.addEventListener('click', () => navMenu.classList.toggle('active'));
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => navMenu.classList.remove('active'));
+        });
+        document.addEventListener('click', (e) => {
+            if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+            }
+        });
+
+        // ========== 文件上传下载 ==========
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const fileItems = document.getElementById('fileItems');
+
+        // 存储文件（使用 Map 保存 blob URL 和文件信息）
+        const uploadedFiles = new Map();
+
+        // 点击上传
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // 文件选择
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+            fileInput.value = '';
+        });
+
+        // 拖拽上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // 处理文件
+        function handleFiles(files) {
+            for (const file of files) {
+                // 限制 50MB
+                if (file.size > 50 * 1024 * 1024) {
+                    alert(`文件 "${file.name}" 超过 50MB 限制`);
+                    continue;
+                }
+
+                const id = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const blobUrl = URL.createObjectURL(file);
+
+                uploadedFiles.set(id, {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    url: blobUrl
+                });
+
+                renderFileItem(id, file.name, file.size);
+            }
+
+            if (uploadedFiles.size > 0) {
+                fileList.classList.add('show');
+            }
+        }
+
+        // 渲染文件项
+        function renderFileItem(id, name, size) {
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            item.dataset.id = id;
+
+            item.innerHTML = `
+                <div class="file-icon">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+                </div>
+                <div class="file-info">
+                    <div class="file-name">${escapeHtml(name)}</div>
+                    <div class="file-size">${formatSize(size)}</div>
+                </div>
+                <div class="file-actions">
+                    <button class="btn-download" title="下载" aria-label="下载">
+                        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    </button>
+                    <button class="btn-delete" title="删除" aria-label="删除">
+                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    </button>
+                </div>
+            `;
+
+            // 下载
+            item.querySelector('.btn-download').addEventListener('click', () => {
+                const file = uploadedFiles.get(id);
+                if (file) {
+                    const a = document.createElement('a');
+                    a.href = file.url;
+                    a.download = file.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            });
+
+            // 删除
+            item.querySelector('.btn-delete').addEventListener('click', () => {
+                const file = uploadedFiles.get(id);
+                if (file) {
+                    URL.revokeObjectURL(file.url);
+                }
+                uploadedFiles.delete(id);
+                item.remove();
+
+                if (uploadedFiles.size === 0) {
+                    fileList.classList.remove('show');
+                }
+            });
+
+            fileItems.appendChild(item);
+        }
+
+        // 格式化文件大小
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // HTML 转义
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
